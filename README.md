@@ -22,7 +22,7 @@ My Article is closely related to these two articles which helped me configure th
 ## Kafka Installation 
 If you haven't installed Kafka already, Here is a short recap on how to install Kafka 
 ### Download and install jdk
-Kafka runs using Java. So installation of Java is manadatory before installing kafka
+Kafka runs using Java. So installation of Java is mandatory before installing kafka
 
 Update system once before installing Jdk
 ```
@@ -32,7 +32,7 @@ Its better to have Java8 if you are generating CA and certificates yourselves. S
 ```
 sudo apt install openjdk-8-jdk
 ```
-### Download and setup Kafka
+### Download and Install Kafka
 Here I downloaded Kafka 3.2
 #### Download from apache website
 website link https://kafka.apache.org/downloads. Get the recent version. I downloaded version 3.2.0 Make sure you download the binaries not the source
@@ -67,4 +67,59 @@ export KAFKA_HOME=/opt/kafka
 ```
 export PATH=$KAFKA_HOME/bin:$PATH
 ```
+If you want the path to be added permanently to Linux. You need to add it to your ~/.profile or ~/.bashrc file. 
+```
+export KAFKA_HOME=/opt/kafka
+export PATH=$KAFKA_HOME/bin:$PATH
+```
+Add the above two lines to ~/.profile or ~/.bashrc file.
+Kafka binaries can now be accessed anywhere from your system. 
 
+Now you have successfully downloaded kafka and Installed on your system.
+#### Data Directories
+
+We need to specify few directories where we can have the zookeeper data and broker data
+
+Created the below directories in the home directory of non-root user kafka
+```
+mkdir /home/kafka/data
+cd data 
+```
+```
+mkdir zookeeper
+```
+```
+mkdir brokerzero
+```
+```
+mkdir brokerone
+```
+```
+mkdir brokertwo
+```
+![Data-Directories](Documentation/data-directories.JPG)
+## Basic Run
+To test if the version of the Kafka that we downloaded works without any issues. We can run Kafka with minimal configuration without any SSL or SASL at this stage.
+
+For the basic run we need to configure the one zookeeper and three brokers. These files are present inside the directory /opt/kafka/config
+
+### Zookeeper config 
+Modify /opt/kafka/zookeeper.properties to have this below config 
+![zookeeper.properties](Documentation/basic_zookeeper_properties.JPG)
+
+
+### Broker Configs
+Important things to note in Broker config is that we need to have different broker.id for each brokers. 
+
+Modify the log.dirs to the corresponding data dir that you created in the previous step.
+
+####  Broker Zero Config 
+![server-0.properties](Documentation/server-0.properties.JPG)
+
+#### Broker One Config
+Similar to broker zero but the changes come in the broker.id and the logs.dir property. 
+Also the listeners and advertised.listeners should have a different port number. Other wise you will get port is in use error while starting broker one.
+
+#### Broker Two Config
+Similar to broker zero but the changes come in the broker.id and the logs.dir property.
+Also the listeners and advertised.listeners should have a different port number. Otherwise you will get port is in use error while starting broker two.
