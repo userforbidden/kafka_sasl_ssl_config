@@ -25,50 +25,50 @@ If you haven't installed Kafka already, Here is a short recap on how to install 
 Kafka runs using Java. So installation of Java is mandatory before installing kafka
 
 Update system once before installing Jdk
-```
-sudo apt update
+```shell
+azureuser@xxx-xxx-xxxxx-ubuntu:~$ sudo apt update
 ```
 Its better to have Java8 if you are generating CA and certificates yourselves. So I installed openjdk-8
-```
-sudo apt install openjdk-8-jdk
+```shell
+azureuser@xxx-xxx-xxxxx-ubuntu:~$ sudo apt install openjdk-8-jdk
 ```
 ### Download and Install Kafka
 Here I downloaded Kafka 3.2
 #### Download from apache website
 website link https://kafka.apache.org/downloads. Get the recent version. I downloaded version 3.2.0 Make sure you download the binaries not the source
 
-```
-sudo wget https://dlcdn.apache.org/kafka/3.2.0/kafka_2.13-3.2.0.tgz -O /opt/kafka_2.13-3.2.0.tgz
+```shell
+azureuser@xxx-xxx-xxxxx-ubuntu:~$ sudo wget https://dlcdn.apache.org/kafka/3.2.0/kafka_2.13-3.2.0.tgz -O /opt/kafka_2.13-3.2.0.tgz
 ```
 
 #### Extract and install
-```
-cd /opt/
-sudo tar -xvf kafka_2.13-3.2.0.tgz
+```shell
+azureuser@xxx-xxx-xxxxx-ubuntu:~$ cd /opt/
+azureuser@xxx-xxx-xxxxx-ubuntu:~$ sudo tar -xvf kafka_2.13-3.2.0.tgz
 ```
 #### Create symbolic link /opt/kafka
-```
-sudo ln -s /opt/kafka_2.13-3.2.0 /opt/kafka
+```shell
+azureuser@xxx-xxx-xxxxx-ubuntu:~$ sudo ln -s /opt/kafka_2.13-3.2.0 /opt/kafka
 ```
 #### Create a non-root user Kafka and provide permission to /opt/kafka
+```shell 
+azureuser@xxx-xxx-xxxxx-ubuntu:~$ sudo useradd kafka
 ```
-sudo useradd kafka
-```
-```
-sudo chown -R kafka:kafka /opt/kafka*
+```shell
+azureuser@xxx-xxx-xxxxx-ubuntu:~$ sudo chown -R kafka:kafka /opt/kafka*
 ```
 Now kafka user will have permission to run kafka
 
 #### Add Kafka installation folder to the system path
 Use the below commands to add to the path
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ export KAFKA_HOME=/opt/kafka
 ```
-export KAFKA_HOME=/opt/kafka
-```
-```
-export PATH=$KAFKA_HOME/bin:$PATH
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ export PATH=$KAFKA_HOME/bin:$PATH
 ```
 If you want the path to be added permanently to Linux. You need to add it to your ~/.profile or ~/.bashrc file. 
-```
+```shell
 export KAFKA_HOME=/opt/kafka
 export PATH=$KAFKA_HOME/bin:$PATH
 ```
@@ -81,25 +81,26 @@ Now you have successfully downloaded kafka and Installed on your system.
 We need to specify few directories where we can have the zookeeper data and broker data
 
 Created the below directories in the home directory of non-root user kafka
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ mkdir /home/kafka/data
+kafka@xxx-xxx-xxxxx-ubuntu:~$ cd data 
 ```
-mkdir /home/kafka/data
-cd data 
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ mkdir zookeeper
 ```
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ mkdir brokerzero
 ```
-mkdir zookeeper
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ mkdir brokerone
 ```
-```
-mkdir brokerzero
-```
-```
-mkdir brokerone
-```
-```
-mkdir brokertwo
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$mkdir brokertwo
 ```
 ![Data-Directories](Documentation/data-directories.JPG)
 ## Basic Run
 To test if the version of the Kafka that we downloaded works without any issues. We can run Kafka with minimal configuration without any SSL or SASL at this stage.
+I will be running 3 broker kafka. So I need to have 3 server configs created.
 
 For the basic run we need to configure the one zookeeper and three brokers. These files are present inside the directory /opt/kafka/config
 
@@ -112,7 +113,10 @@ Modify /opt/kafka/zookeeper.properties to have this below config
 Important things to note in Broker config is that we need to have different broker.id for each brokers. 
 
 Modify the log.dirs to the corresponding data dir that you created in the previous step.
-
+There will be server.properties already existing in the config folder. Use it as reference and create the other broker configuration files
+```
+cp server.properties server-0.properties
+```
 ####  Broker Zero Config 
 ![server-0.properties](Documentation/server-0.properties.JPG)
 
@@ -123,3 +127,66 @@ Also the listeners and advertised.listeners should have a different port number.
 #### Broker Two Config
 Similar to broker zero but the changes come in the broker.id and the logs.dir property.
 Also the listeners and advertised.listeners should have a different port number. Otherwise you will get port is in use error while starting broker two.
+
+### Run Zookeeper 
+If you have added Kafka to path. Run the below command to start the Zookeeper
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ zookeeper-server-start.sh -daemon /opt/kafka/config/zookeeper.properties
+```
+### Start Broker 
+Run the below commands in terminal to start the broker.
+To start broker zero 
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ kafka-server-start.sh -daemon /opt/kafka/config/server-0.properties
+```
+To start broker one
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ kafka-server-start.sh -daemon /opt/kafka/config/server-0.properties
+```
+To start broker two 
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ kafka-server-start.sh -daemon /opt/kafka/config/server-0.properties
+```
+
+### Verify Running kafka 
+
+You can verify if kafka is running or not using two ways 
+
+1. Verify using JPS
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ jps
+4928 QuorumPeerMain
+1226934 Jps
+8757 Kafka
+9179 Kafka
+7918 Kafka
+```
+Here the Quorum PeerMain is the process denoting that zookeeper is running
+
+Other three Kafka denotes that three brokers are running in the machine
+
+2. Using Zookeeper Shell 
+type ls /brokers/ids in the zookeeper shell to see if your brokers have been started
+```shell
+kafka@xxx-xxx-xxxxx-ubuntu:~$ zookeeper-shell.sh localhost:2182
+Connecting to localhost:2182
+Welcome to ZooKeeper!
+JLine support is disabled
+
+WATCHER::
+
+WatchedEvent state:SyncConnected type:None path:null
+ls /brokers/ids
+[0, 1, 2]
+```
+
+Here you can see from the output [0,1,2] which lists the ids of the broker that is running in the system. 
+
+Now you have successfully started Kafka in a Paas based environment without any security futures enabled. This is just a basic run. This basic run can be reached out using a public IP address. 
+For that you need to expose at least one of the broker's port number. In my case I have exposed Port 9092 to reach to this Kafka cluster from outside world. 
+
+Example from Azure Networking interface 
+
+![Kafka-azure-networking](Documentation/Kafka-Azure-networking.JPG)
+
+Once you enable the inbound port rules, You can access the Kafka cluster that you have setup using your own clients like Kcat, Java Spring Kafka API's, Python Kafka API's etc., 
