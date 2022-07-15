@@ -189,4 +189,9 @@ Example from Azure Networking interface
 
 ![Kafka-azure-networking](Documentation/Kafka-Azure-networking.JPG)
 
-Once you enable the inbound port rules, You can access the Kafka cluster that you have setup using your own clients like Kcat, Java Spring Kafka API's, Python Kafka API's etc., 
+Once you enable the inbound port rules, You can access the Kafka cluster that you have setup using your own clients like Kcat, Java Spring Kafka API's, Python Kafka API's etc.,
+
+Now you have successfully setup the 3 node/broker kafka cluster without any security just a basic installation. 
+But that alone is not the goal of this article. Let's proceed further and see how to enable ssl and sasl based authentication for these Kafka clusters.
+
+## Create CA Truststore and Keystores 
