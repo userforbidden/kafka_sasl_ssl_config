@@ -194,4 +194,9 @@ Once you enable the inbound port rules, You can access the Kafka cluster that yo
 Now you have successfully setup the 3 node/broker kafka cluster without any security just a basic installation. 
 But that alone is not the goal of this article. Let's proceed further and see how to enable ssl and sasl based authentication for these Kafka clusters.
 
-## Create CA Truststore and Keystores 
+## The Encrypted Architecture 
+![architecture](Documentation/architecture.drawio.svg)
+## Encryption and Authentication using SSL
+Apache Kafka allows clients to use SSL for encryption of traffic as well as authentication. By default, SSL is disabled but can be turned on if needed. The following paragraphs explain in detail how to set up your own PKI infrastructure, use it to create certificates and configure Kafka to use these.
+
+## Create CA, Truststore and Keystore files.
