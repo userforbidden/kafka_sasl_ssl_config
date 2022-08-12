@@ -230,7 +230,7 @@ The command I used above doesn't prompt you to enter fields for the -dname. So r
 5. Fields inside dname 
    1. {{fqdnHostname}} - Fully Qualified Domain Name of the server your broker or Zookeeper is present 
    2. {{organizationUnit}} - Whatever your Organizational Unit is provide that
-   3. O={{Organization}} - Organization name 
-   4. L={{yourLocality}} - Enter your city name 
-   5. ST={{yourState}} - Enter your state name 
-   6. C={{yourTwoCharacterCountryCode}} - [Two character country code from this list](https://www.ssl.com/country-codes/)
+   3. {{Organization}} - Organization name 
+   4. {{yourLocality}} - Enter your city name 
+   5. {{yourState}} - Enter your state name 
+   6. {{yourTwoCharacterCountryCode}} - [Two character country code from this list](https://www.ssl.com/country-codes/)
