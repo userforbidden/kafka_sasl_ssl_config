@@ -95,7 +95,7 @@ kafka@xxx-xxx-xxxxx-ubuntu:~$ mkdir brokerzero
 kafka@xxx-xxx-xxxxx-ubuntu:~$ mkdir brokerone
 ```
 ```shell
-kafka@xxx-xxx-xxxxx-ubuntu:~$mkdir brokertwo
+kafka@xxx-xxx-xxxxx-ubuntu:~$ mkdir brokertwo
 ```
 ![Data-Directories](Documentation/data-directories.JPG)
 ## Basic Run
@@ -200,3 +200,37 @@ But that alone is not the goal of this article. Let's proceed further and see ho
 Apache Kafka allows clients to use SSL for encryption of traffic as well as authentication. By default, SSL is disabled but can be turned on if needed. The following paragraphs explain in detail how to set up your own PKI infrastructure, use it to create certificates and configure Kafka to use these.
 
 ## Create CA, Truststore and Keystore files.
+ What is a CA, Trustore and Keystore? I am not going to explain them in this article. Here is another article I referenced earlier
+ [Practical implementation of SSL in Kafka Brokers](https://medium.com/@vinod.chelladuraiv/kafka-ssl-encryption-authentication-part-two-practical-example-for-implementing-ssl-in-kafka-d514f30fe782). Please look at it if you have any doubts 
+
+### Create CA 
+
+```shell
+openssl req -new -x509 --keyout ca-key -out ca-cert -days 3650
+```
+Store this CA for further commands that may follow.
+
+The next steps need to be executed in each of the brokers 
+### Step-1 Create truststore for each broker 
+Copy the CA's public certificate and import it into the truststore 
+```shell
+keytool -keystore {{nameForTruststore}}.jks -alias CARoot -importcert -file ca-cert -storepass {{password}}
+```
+### Step-2 Create Keystore for each broker 
+```shell
+keytool -keystore {{nameForKeyStore}}.jks -alias {{aliasName}} -keyalg RSA -validity 3650 -genkey -deststoretype pkcs12 -storepass {{storePassword}} -keypass {{keyPassword}} -dname "CN={{fqdnHostname}},OU={{organizationUnit}},O={{Organization}},L={{yourLocality}}, ST={{yourState}},C={{yourTwoCharacterCountryCode}}" -ext SAN=DNS:localhost,DNS:{{Add all possible domain names}},DNS:{{Add all possible domain names}},DNS:{{Add all possible domain names}}
+```
+
+The command I used above doesn't prompt you to enter fields for the -dname. So replace with your own values for the below 
+<br>
+1. {{nameForKeyStore}} <br>
+2. {{aliasName}} <br>
+3. {{storePassword}} <br>
+4. {{keyPassword}} <br>
+5. Fields inside dname 
+   1. {{fqdnHostname}} - Fully Qualified Domain Name of the server your broker or Zookeeper is present 
+   2. {{organizationUnit}} - Whatever your Organizational Unit is provide that
+   3. O={{Organization}} - Organization name 
+   4. L={{yourLocality}} - Enter your city name 
+   5. ST={{yourState}} - Enter your state name 
+   6. C={{yourTwoCharacterCountryCode}} - [Two character country code from this list](https://www.ssl.com/country-codes/)
